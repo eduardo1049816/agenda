@@ -40,7 +40,7 @@ class App:
         self.layout_menu.addWidget(botao_listar)
         self.layout_menu.addWidget(botao_cadastrar)
 
-        self.tela_listagem = Listar(self.app, self.mostrar_menu)
+        self.tela_listagem = Listar(self.app, self.mostrar_menu, self.mostrar_cadastro)
         self.tela_cadastro = Cadastrar(self.app, self.mostrar_menu)
 
         self.stack.addWidget(self.tela_menu)              

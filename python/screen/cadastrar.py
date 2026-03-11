@@ -1,15 +1,11 @@
+# -- Active: 1770836477315@@127.0.0.1@3306@agenda
 from modules.mysql import MySQL
 from modules.contatos import Contatos
 
 import sys
 from PySide6.QtWidgets import (
-    QApplication,
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QMessageBox
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSizePolicy, 
+    QLabel, QLineEdit, QPushButton, QMessageBox
 )
 from PySide6.QtGui import QGuiApplication
 
@@ -24,49 +20,13 @@ class Cadastrar:
 
         self.campos = {}
 
-        # ===== ESTILO DA TELA MODO ESCURO =====
         self.janela.setStyleSheet("""
-            QWidget {
-                background-color: #121212;
-                font-family: Arial;
-                font-size: 14px;
-            }
-
-            QLabel {
-                color: #e5e7eb; /* Cinza bem claro para o texto */
-                font-weight: bold;
-                margin-top: 8px;
-            }
-
-            QLineEdit {
-                background-color: #1f2937; /* Cinza um pouco mais claro para a caixa de texto */
-                color: #ffffff; /* Letra digitada branca */
-                border: 1px solid #374151; /* Borda sutil */
-                border-radius: 6px;
-                padding: 8px;
-            }
-
-            QLineEdit:focus {
-                border: 2px solid #3b82f6; /* Borda azul ao clicar */
-                background-color: #27323f;
-            }
-
-            QPushButton {
-                background-color: #3b82f6;
-                color: white;
-                border-radius: 10px;
-                padding: 12px;
-                margin-top: 15px;
-                font-size: 15px;
-                font-weight: bold;
-            }
-
-            QPushButton:hover { background-color: #2563eb; }
-            QPushButton:pressed { background-color: #1d4ed8; }
+            QWidget { background-color: #121212; font-family: Arial; font-size: 14px; }
+            QLabel { color: #e5e7eb; font-weight: bold; margin-top: 8px; }
+            QLineEdit { background-color: #1f2937; color: #ffffff; border: 1px solid #374151; border-radius: 6px; padding: 8px; }
+            QLineEdit:focus { border: 2px solid #3b82f6; background-color: #27323f; }
         """)
-        # ====================================
 
-        # Ajustes visuais (não alteram estrutura)
         self.layout.setSpacing(10)
         self.layout.setContentsMargins(30, 30, 30, 30)
 
@@ -75,57 +35,55 @@ class Cadastrar:
 
     def configurar_janela(self):
         self.janela.setWindowTitle("Cadastrar Contato")
-
-        # 🔹 Redimensiona dinamicamente com base na tela
         tela = QGuiApplication.primaryScreen().availableGeometry()
         largura = int(tela.width() * 0.4)
         altura = int(tela.height() * 0.6)
-
         self.janela.resize(largura, altura)
         self.janela.setLayout(self.layout)
 
     def criar_componentes(self):
         componentes = {
-            "nome": "Digite seu nome:",
-            "email": "Digite seu email:",
-            "telefone": "Digite seu telefone:"
+            "nome": "Nome:",
+            "email": "E-mail:",
+            "telefone": "Contato:"
         }
 
         for chave, valor in componentes.items():
             label = QLabel(valor)
             campo = QLineEdit()
-
             self.layout.addWidget(label)
             self.layout.addWidget(campo)
-
             self.campos[chave] = campo
 
-        self.botao_Cadastrar = QPushButton("Cadastrar")
-        self.layout.addWidget(self.botao_Cadastrar)
-        self.botao_Cadastrar.clicked.connect(self.cadastrar)
-        self.botao_voltar = QPushButton("Voltar ao Menu")
-        self.botao_voltar.setStyleSheet("background-color: #4b5563;") 
-        self.layout.addWidget(self.botao_voltar)
+        layout_botoes = QHBoxLayout()
+        layout_botoes.setSpacing(15)
 
+        self.botao_cadastrar = QPushButton("Cadastrar")
+        self.botao_voltar = QPushButton("Voltar ao Menu")
+
+        estilo_botoes = "QPushButton { color: white; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; margin-top: 15px; }"
+        
+        self.botao_cadastrar.setStyleSheet(estilo_botoes + "QPushButton { background-color: #10b981; } QPushButton:hover { background-color: #059669; }")
+        self.botao_voltar.setStyleSheet(estilo_botoes + "QPushButton { background-color: #4b5563; } QPushButton:hover { background-color: #374151; }")
+
+        for botao in [self.botao_cadastrar, self.botao_voltar]:
+            botao.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            layout_botoes.addWidget(botao)
+
+        self.layout.addLayout(layout_botoes)
+
+        self.botao_cadastrar.clicked.connect(self.cadastrar)
         self.botao_voltar.clicked.connect(self.callback_voltar)
 
     def validar_campos(self):
         for chave, campo in self.campos.items():
             if not campo.text().strip():
-                QMessageBox.warning(
-                    self.janela,
-                    "Validação",
-                    f"O campo '{chave}' é obrigatório."
-                )
+                QMessageBox.warning(self.janela, "Validação", f"O campo '{chave}' é obrigatório.")
                 campo.setFocus()
                 return False
 
         if "@" not in self.campos["email"].text():
-            QMessageBox.warning(
-                self.janela,
-                "Validação",
-                "Email inválido."
-            )
+            QMessageBox.warning(self.janela, "Validação", "Email inválido.")
             self.campos["email"].setFocus()
             return False
         return True
@@ -141,7 +99,6 @@ class Cadastrar:
         )
 
         self.banco.connect()
-
         try:
             contatos.cadastrar(self.banco)
             QMessageBox.information(self.janela, "Sucesso", "Contato cadastrado!")
@@ -158,8 +115,6 @@ class Cadastrar:
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    tela = Cadastrar(app)
+    tela = Cadastrar(app, lambda: print("Voltar ao menu chamado"))
     tela.janela.show()
-
     sys.exit(app.exec())

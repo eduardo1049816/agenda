@@ -2,12 +2,15 @@ from modules.mysql import MySQL
 from modules.contatos import Contatos
 from screen.editar import Editar
 
+from PySide6.QtCore import Qt 
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,       
     QSizePolicy,       
     QPushButton,
+
+
     QTableWidget,
     QTableWidgetItem,
     QMessageBox,
@@ -56,13 +59,20 @@ class Listar:
     def criar_componentes(self):
         self.tabela = QTableWidget()
         self.tabela.setColumnCount(4)
-        self.tabela.setHorizontalHeaderLabels(["ID", "Nome", "Email", "Telefone"])
+        
+        self.tabela.setHorizontalHeaderLabels(["Inicial", "Nome", "Email", "Telefone"])
 
         self.tabela.setAlternatingRowColors(True)
         self.tabela.setEditTriggers(QTableWidget.NoEditTriggers)
         self.tabela.setSelectionBehavior(QTableWidget.SelectRows)
         self.tabela.setSortingEnabled(True)
-        self.tabela.horizontalHeader().setStretchLastSection(True)
+
+
+        header = self.tabela.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.Stretch)
 
         self.layout.addWidget(self.tabela)
 
@@ -104,14 +114,29 @@ class Listar:
             self.tabela.setRowCount(0)
             return
 
+        self.tabela.setSortingEnabled(False)
         self.tabela.setRowCount(len(contatos))
 
         for linha, contato in enumerate(contatos):
-            self.tabela.setItem(linha, 0, QTableWidgetItem(str(contato["id"])))
+
+            inicial = contato["nome"][0].upper() if contato["nome"] else ""
+            id_visual = f"{inicial}" # Antes era: f"{inicial}-{contato['id']}"
+            
+            item_id = QTableWidgetItem(id_visual)
+            
+
+            item_id.setTextAlignment(Qt.AlignCenter) 
+            
+            item_id.setData(Qt.UserRole, contato["id"]) 
+
+            self.tabela.setItem(linha, 0, item_id)
             self.tabela.setItem(linha, 1, QTableWidgetItem(contato["nome"]))
             self.tabela.setItem(linha, 2, QTableWidgetItem(contato["email"]))
             self.tabela.setItem(linha, 3, QTableWidgetItem(contato["telefone"]))
-            
+    
+        self.tabela.setSortingEnabled(True)
+        self.tabela.sortItems(1, Qt.AscendingOrder)
+
     def deletar_contato(self):
         linha_selecionada = self.tabela.currentRow()
         
@@ -119,7 +144,7 @@ class Listar:
             QMessageBox.warning(self.janela, "Aviso", "Selecione um contato na tabela primeiro!")
             return
 
-        id_contato = self.tabela.item(linha_selecionada, 0).text()
+        id_contato = self.tabela.item(linha_selecionada, 0).data(Qt.UserRole)
 
         resposta = QMessageBox.question(
             self.janela, 
@@ -146,7 +171,7 @@ class Listar:
             QMessageBox.warning(self.janela, "Aviso", "Selecione um contato na tabela para editar!")
             return
 
-        id_contato = self.tabela.item(linha_selecionada, 0).text()
+        id_contato = self.tabela.item(linha_selecionada, 0).data(Qt.UserRole)
         nome = self.tabela.item(linha_selecionada, 1).text()
         email = self.tabela.item(linha_selecionada, 2).text()
         telefone = self.tabela.item(linha_selecionada, 3).text()

@@ -11,7 +11,6 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QGuiApplication
 
-
 class Editar:
     def __init__(self, app, id_contato, nome, email, telefone, tela_listagem):
         self.app = app
@@ -27,45 +26,17 @@ class Editar:
 
         self.campos = {}
 
-        # ===== ESTILO DA TELA MODO ESCURO =====
         self.janela.setStyleSheet("""
-            QWidget {
-                background-color: #121212;
-                font-family: Arial;
-                font-size: 14px;
-            }
-
-            QLabel {
-                color: #e5e7eb; /* Cinza bem claro para o texto */
-                font-weight: bold;
-                margin-top: 8px;
-            }
-
-            QLineEdit {
-                background-color: #1f2937; /* Cinza um pouco mais claro para a caixa de texto */
-                color: #ffffff; /* Letra digitada branca */
-                border: 1px solid #f39c12; /* Borda sutil */
-                border-radius: 6px;
-                padding: 8px;
-            }
-
-            QLineEdit:focus {
-                border: 2px solid #3b82f6; /* Borda azul ao clicar */
-                background-color: #27323f;
-            }
-
+            QWidget { background-color: #121212; font-family: Arial; font-size: 14px; }
+            QLabel { color: #e5e7eb; font-weight: bold; margin-top: 8px; }
+            QLineEdit { background-color: #1f2937; color: #ffffff; border: 1px solid #374151; border-radius: 6px; padding: 8px; }
+            QLineEdit:focus { border: 2px solid #3b82f6; background-color: #27323f; }
             QPushButton {
-                background-color: #3b82f6;
-                color: white;
-                border-radius: 10px;
-                padding: 12px;
-                margin-top: 15px;
-                font-size: 15px;
-                font-weight: bold;
+                background-color: #10b981; /* Verde para confirmar a edição */
+                color: white; border-radius: 10px; padding: 12px; margin-top: 15px; font-size: 15px; font-weight: bold;
             }
-
-            QPushButton:hover { background-color: #2563eb; }
-            QPushButton:pressed { background-color: #1d4ed8; }
+            QPushButton:hover { background-color: #059669; }
+            QPushButton:pressed { background-color: #047857; }
         """)
 
         self.layout.setSpacing(10)
@@ -106,8 +77,9 @@ class Editar:
         self.botao_salvar.clicked.connect(self.salvar_edicao)
 
     def salvar_edicao(self):
-        nome = self.campos['nome'].text().strip()
-        email = self.campos['email'].text().strip()
+
+        nome = self.campos['nome'].text().strip().title()
+        email = self.campos['email'].text().strip().lower()
         telefone = self.campos['telefone'].text().strip()
 
         if not nome or not email or not telefone:

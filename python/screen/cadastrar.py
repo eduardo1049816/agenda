@@ -1,10 +1,9 @@
-# -- Active: 1770836477315@@127.0.0.1@3306@agenda
 from modules.mysql import MySQL
 from modules.contatos import Contatos
 
 import sys
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSizePolicy, 
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QSizePolicy,
     QLabel, QLineEdit, QPushButton, QMessageBox
 )
 from PySide6.QtGui import QGuiApplication
@@ -45,7 +44,7 @@ class Cadastrar:
         componentes = {
             "nome": "Nome:",
             "email": "E-mail:",
-            "telefone": "Contato:"
+            "telefone": "Celular:"
         }
 
         for chave, valor in componentes.items():
@@ -54,6 +53,7 @@ class Cadastrar:
             self.layout.addWidget(label)
             self.layout.addWidget(campo)
             self.campos[chave] = campo
+
 
         layout_botoes = QHBoxLayout()
         layout_botoes.setSpacing(15)
@@ -71,6 +71,7 @@ class Cadastrar:
             layout_botoes.addWidget(botao)
 
         self.layout.addLayout(layout_botoes)
+
 
         self.botao_cadastrar.clicked.connect(self.cadastrar)
         self.botao_voltar.clicked.connect(self.callback_voltar)
@@ -92,10 +93,11 @@ class Cadastrar:
         if not self.validar_campos():
             return
 
+
         contatos = Contatos(
-            self.campos['nome'].text(),
-            self.campos['email'].text(),
-            self.campos['telefone'].text()
+            self.campos['nome'].text().strip().title(),
+            self.campos['email'].text().strip().lower(),
+            self.campos['telefone'].text().strip()
         )
 
         self.banco.connect()
